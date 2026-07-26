@@ -1,0 +1,30 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Environment variables (بيانات حساسة، متترفعش أبدًا)
+.env
+.env.local
+.env.*.local
+
+# Next.js
+.next/
+out/
+
+# Build outputs
+dist/
+build/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Certbot / SSL certs (هتتعمل على السيرفر نفسه مش هنا)
+certbot/
+
+# IDE
+.vscode/
+.idea/

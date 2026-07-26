@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #0e2420;
+  --paper: #f2f4f1;
+  --paper-raised: #ffffff;
+  --primary: #1b6b5a;
+  --primary-dark: #123f35;
+  --accent: #d9a441;
+  --accent-soft: #f0deb0;
+  --line: #dde2de;
+  --danger: #b3392c;
+  --danger-soft: #f6e3e0;
+  --success: #2f7a4f;
+  --success-soft: #e2f0e6;
+
+  /* الخط الفعّال بيتغيّر حسب اللغة عن طريق [data-lang] تحت */
+  --font-body: var(--font-en);
+  --font-display: var(--font-en);
+}
+
+html[data-lang="ar"] {
+  --font-body: var(--font-ar);
+  --font-display: var(--font-ar);
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-line: var(--line);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-num);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+/* عناصر عربية بتحتاج line-height أكبر شوية عشان التشكيل والحروف الطويلة */
+html[data-lang="ar"] body {
+  line-height: 1.85;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
