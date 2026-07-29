@@ -3,9 +3,11 @@ import catchError from "../../../middleware/catchError.js";
 import AppError from "../../../utils/AppError.js";
 
 const getPublicProfile = catchError(async (req, res, next) => {
-  const user = await User.findById(req.params.id).select(
-    "name avatarUrl role profile.bio profile.linkedinUrl profile.portfolioUrl profile.badges profile.skills"
-  );
+  const user = await User.findById(req.params.id)
+    .select(
+      "name avatarUrl role profile.bio profile.linkedinUrl profile.portfolioUrl profile.badges profile.skills profile.specialties"
+    )
+    .populate("profile.specialties", "name slug");
 
   if (!user) return next(new AppError("المستخدم غير موجود", 404));
 

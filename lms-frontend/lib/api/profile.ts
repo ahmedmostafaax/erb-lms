@@ -35,3 +35,14 @@ export type DashboardData = {
 export function getDashboard(token: string) {
   return apiFetch<{ status: string; data: DashboardData }>("/profile/me/dashboard", { token });
 }
+
+export function updateMyProfile(
+  payload: { bio?: string; linkedinUrl?: string; portfolioUrl?: string; specialties?: string[] },
+  token: string
+) {
+  return apiFetch<{ status: string; data: unknown }>("/profile/me", {
+    method: "PUT",
+    body: payload,
+    token,
+  });
+}

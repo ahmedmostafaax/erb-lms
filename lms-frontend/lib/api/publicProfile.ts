@@ -11,6 +11,7 @@ export type PublicProfile = {
     portfolioUrl?: string;
     badges: unknown[];
     skills: { name: string }[];
+    specialties: { _id: string; name: string; slug: string }[];
   };
 };
 

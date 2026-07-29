@@ -13,6 +13,8 @@ import {
   updateCourse,
   addModule,
   addLesson,
+  addGalleryItem,
+  deleteGalleryItem,
   type CourseModule,
 } from "@/lib/api/instructorCourses";
 import { ApiError } from "@/lib/api/client";
@@ -22,6 +24,7 @@ function ManageCourseContent() {
   const { dict, locale } = useLanguage();
   const { token } = useAuth();
   const videoRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
 
   const [course, setCourse] = useState<Course | null>(null);
   const [modules, setModules] = useState<CourseModule[]>([]);
@@ -35,6 +38,7 @@ function ManageCourseContent() {
   const [savingModule, setSavingModule] = useState(false);
   const [savingLesson, setSavingLesson] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
 
   const load = () => {
     getCourse(id).then((res) => {
@@ -108,6 +112,36 @@ function ManageCourseContent() {
     }
   };
 
+  const handleAddGalleryItem = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+
+    setUploadingGallery(true);
+    setMsg(null);
+    try {
+      await addGalleryItem(id, file, token);
+      const res = await getCourse(id);
+      setCourse(res.data.course);
+      setMsg({ type: "success", text: dict.instructor.galleryAdded });
+    } catch (err) {
+      setMsg({ type: "error", text: err instanceof ApiError ? err.message : "حدث خطأ" });
+    } finally {
+      setUploadingGallery(false);
+      if (galleryRef.current) galleryRef.current.value = "";
+    }
+  };
+
+  const handleDeleteGalleryItem = async (itemId: string) => {
+    if (!token) return;
+    try {
+      await deleteGalleryItem(id, itemId, token);
+      const res = await getCourse(id);
+      setCourse(res.data.course);
+    } catch (err) {
+      setMsg({ type: "error", text: err instanceof ApiError ? err.message : "حدث خطأ" });
+    }
+  };
+
   if (!course) return null;
 
   return (
@@ -134,6 +168,41 @@ function ManageCourseContent() {
             <Alert type={msg.type} message={msg.text} />
           </div>
         )}
+
+        {/* معرض الكورس */}
+        <section className="mt-8 rounded-2xl border border-line bg-paper-raised p-6">
+          <h2 className="font-display text-lg font-semibold text-ink">{dict.instructor.gallery}</h2>
+          <p className="mt-1 text-xs text-ink/50">{dict.instructor.gallerySubtitle}</p>
+
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {course.gallery?.map((item) => (
+              <div key={item._id} className="group relative overflow-hidden rounded-xl border border-line">
+                {item.type === "image" ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.url} alt="" className="h-24 w-full object-cover" />
+                ) : (
+                  <video src={item.url} className="h-24 w-full object-cover" muted />
+                )}
+                <button
+                  onClick={() => handleDeleteGalleryItem(item._id)}
+                  className="absolute inset-0 hidden items-center justify-center bg-ink/60 text-xs font-semibold text-white group-hover:flex"
+                >
+                  {dict.instructor.removeFromGallery}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <input
+            ref={galleryRef}
+            type="file"
+            accept="image/*,video/*"
+            onChange={handleAddGalleryItem}
+            disabled={uploadingGallery}
+            className="mt-4 text-sm"
+          />
+          {uploadingGallery && <p className="mt-2 text-xs text-ink/50">{dict.instructor.uploading}</p>}
+        </section>
 
         {/* إضافة موديول */}
         <section className="mt-8 rounded-2xl border border-line bg-paper-raised p-6">

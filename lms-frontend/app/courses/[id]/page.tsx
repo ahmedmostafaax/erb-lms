@@ -141,6 +141,21 @@ export default function CourseDetailsPage() {
               </h2>
               <p className="mt-3 leading-relaxed text-ink/70">{course.description}</p>
 
+              {course.gallery && course.gallery.length > 0 && (
+                <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {course.gallery.map((item) => (
+                    <div key={item._id} className="overflow-hidden rounded-xl border border-line">
+                      {item.type === "image" ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={item.url} alt="" className="h-28 w-full object-cover" />
+                      ) : (
+                        <video src={item.url} controls className="h-28 w-full object-cover" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <h2 className="mt-10 font-display text-lg font-semibold text-ink">
                 {dict.courseDetails.instructor}
               </h2>

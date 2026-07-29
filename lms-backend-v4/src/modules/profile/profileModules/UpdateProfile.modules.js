@@ -2,7 +2,7 @@ import User from "../../../../database/models/user.model.js";
 import catchError from "../../../middleware/catchError.js";
 
 const updateProfile = catchError(async (req, res, next) => {
-  const allowedFields = ["bio", "cvUrl", "linkedinUrl", "portfolioUrl"];
+  const allowedFields = ["bio", "cvUrl", "linkedinUrl", "portfolioUrl", "specialties"];
   const updateData = {};
 
   allowedFields.forEach((field) => {
@@ -11,7 +11,10 @@ const updateProfile = catchError(async (req, res, next) => {
     }
   });
 
-  const user = await User.findByIdAndUpdate(req.user._id, { $set: updateData }, { new: true });
+  const user = await User.findByIdAndUpdate(req.user._id, { $set: updateData }, { new: true }).populate(
+    "profile.specialties",
+    "name slug"
+  );
 
   res.status(200).json({ status: "success", data: user.profile });
 });

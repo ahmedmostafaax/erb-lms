@@ -10,6 +10,7 @@ export type Course = {
   level: "beginner" | "intermediate" | "advanced";
   language: string;
   thumbnailUrl?: string;
+  gallery?: { _id: string; type: "image" | "video"; url: string }[];
   status?: "draft" | "published" | "archived";
   modules?: {
     _id: string;

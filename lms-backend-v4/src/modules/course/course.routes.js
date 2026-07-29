@@ -3,7 +3,7 @@ const router = express.Router();
 
 import validation from "../../middleware/validation.js";
 import { protect, allowedTo } from "../../middleware/auth.js";
-import { uploadImage } from "../../middleware/uploadMiddleware.js";
+import { uploadImage, uploadMedia } from "../../middleware/uploadMiddleware.js";
 import { createCourseSchema, updateCourseSchema, courseIdSchema } from "./course.validation.js";
 
 import createCourse from "./courseModules/CreateCourse.modules.js";
@@ -12,6 +12,8 @@ import getMyCourses from "./courseModules/GetMyCourses.modules.js";
 import getCourse from "./courseModules/GetCourse.modules.js";
 import updateCourse from "./courseModules/UpdateCourse.modules.js";
 import deleteCourse from "./courseModules/DeleteCourse.modules.js";
+import addGalleryItem from "./courseModules/AddGalleryItem.modules.js";
+import deleteGalleryItem from "./courseModules/DeleteGalleryItem.modules.js";
 
 router
   .route("/")
@@ -24,7 +26,6 @@ router
     createCourse
   );
 
-// لازم يفضل قبل route الـ /:id عشان "my" متتفسرش كـ id غلط
 router.get("/my", protect, allowedTo("instructor", "admin"), getMyCourses);
 
 router
@@ -32,5 +33,14 @@ router
   .get(validation(courseIdSchema), getCourse)
   .put(protect, allowedTo("instructor", "admin"), validation(updateCourseSchema), updateCourse)
   .delete(protect, allowedTo("instructor", "admin"), validation(courseIdSchema), deleteCourse);
+
+router.post(
+  "/:id/gallery",
+  protect,
+  allowedTo("instructor", "admin"),
+  uploadMedia.single("media"),
+  addGalleryItem
+);
+router.delete("/:id/gallery/:itemId", protect, allowedTo("instructor", "admin"), deleteGalleryItem);
 
 export default router;

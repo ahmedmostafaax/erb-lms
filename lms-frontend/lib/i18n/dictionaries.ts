@@ -7,6 +7,7 @@ export interface Dictionary {
     signup: string;
     logout: string;
     newCourse: string;
+    menu: string;
   };
   hero: {
     eyebrow: string;
@@ -148,6 +149,8 @@ export interface Dictionary {
     currentPassword: string;
     newPassword: string;
     passwordChanged: string;
+    specialtiesTitle: string;
+    specialtiesSubtitle: string;
   };
   quiz: {
     notFound: string;
@@ -189,6 +192,10 @@ export interface Dictionary {
     myCourses: string;
     noCoursesYet: string;
     quizzes: string;
+    gallery: string;
+    gallerySubtitle: string;
+    galleryAdded: string;
+    removeFromGallery: string;
   };
   instructorQuiz: {
     title: string;
@@ -239,7 +246,7 @@ export const dictionaries: Record<"ar" | "en", Dictionary> = {
   ar: {
     nav: {
       courses: "الكورسات", dashboard: "لوحتي", community: "المجتمع",
-      login: "تسجيل الدخول", signup: "إنشاء حساب", logout: "تسجيل الخروج", newCourse: "كورساتي",
+      login: "تسجيل الدخول", signup: "إنشاء حساب", logout: "تسجيل الخروج", newCourse: "كورساتي", menu: "القائمة",
     },
     hero: {
       eyebrow: "منصة تعليمية",
@@ -379,6 +386,8 @@ export const dictionaries: Record<"ar" | "en", Dictionary> = {
       currentPassword: "كلمة المرور الحالية",
       newPassword: "كلمة المرور الجديدة",
       passwordChanged: "تم تغيير كلمة المرور بنجاح",
+      specialtiesTitle: "تخصصاتي",
+      specialtiesSubtitle: "اختار المجالات اللي بتدرّسها، هتظهر في بروفايلك العام.",
     },
     quiz: {
       notFound: "الاختبار ده مش موجود.",
@@ -420,6 +429,10 @@ export const dictionaries: Record<"ar" | "en", Dictionary> = {
       myCourses: "كورساتي",
       noCoursesYet: "لسه معملتش أي كورس.",
       quizzes: "الاختبارات",
+      gallery: "معرض الكورس",
+      gallerySubtitle: "صور وفيديوهات إضافية بتتعرض في صفحة تفاصيل الكورس",
+      galleryAdded: "تم إضافة العنصر للمعرض",
+      removeFromGallery: "حذف",
     },
     instructorQuiz: {
       title: "إنشاء اختبار جديد",
@@ -468,7 +481,7 @@ export const dictionaries: Record<"ar" | "en", Dictionary> = {
   en: {
     nav: {
       courses: "Courses", dashboard: "Dashboard", community: "Community",
-      login: "Log in", signup: "Sign up", logout: "Log out", newCourse: "My courses",
+      login: "Log in", signup: "Sign up", logout: "Log out", newCourse: "My courses", menu: "Menu",
     },
     hero: {
       eyebrow: "Learning platform",
@@ -608,6 +621,8 @@ export const dictionaries: Record<"ar" | "en", Dictionary> = {
       currentPassword: "Current password",
       newPassword: "New password",
       passwordChanged: "Password changed successfully",
+      specialtiesTitle: "My specialties",
+      specialtiesSubtitle: "Pick the fields you teach, they'll show on your public profile.",
     },
     quiz: {
       notFound: "This quiz doesn't exist.",
@@ -649,6 +664,10 @@ export const dictionaries: Record<"ar" | "en", Dictionary> = {
       myCourses: "My courses",
       noCoursesYet: "You haven't created any course yet.",
       quizzes: "Quizzes",
+      gallery: "Course gallery",
+      gallerySubtitle: "Extra images and videos shown on the course details page",
+      galleryAdded: "Item added to gallery",
+      removeFromGallery: "Remove",
     },
     instructorQuiz: {
       title: "Create a new quiz",

@@ -56,6 +56,19 @@ export default function PublicProfilePage() {
           </div>
         </div>
 
+        {profile.profile.specialties?.length > 0 && (
+          <div className="mt-6 flex flex-wrap gap-2">
+            {profile.profile.specialties.map((s) => (
+              <span
+                key={s._id}
+                className="rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-ink"
+              >
+                {s.name}
+              </span>
+            ))}
+          </div>
+        )}
+
         {profile.profile.bio && (
           <p className="mt-6 leading-relaxed text-ink/70">{profile.profile.bio}</p>
         )}

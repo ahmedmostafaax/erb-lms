@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { ProtectedRoute } from "@/lib/auth/ProtectedRoute";
@@ -9,6 +9,8 @@ import { FormField } from "@/components/auth/FormField";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { Alert } from "@/components/Alert";
 import { updatePersonalData, changePassword, uploadAvatar, uploadCv } from "@/lib/api/settings";
+import { updateMyProfile } from "@/lib/api/profile";
+import { getCategories, type Category } from "@/lib/api/categories";
 import { ApiError } from "@/lib/api/client";
 
 function SettingsContent() {
@@ -30,6 +32,37 @@ function SettingsContent() {
   const [avatarMsg, setAvatarMsg] = useState<{ type: "error" | "success"; text: string } | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingCv, setUploadingCv] = useState(false);
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
+  const [specialtiesMsg, setSpecialtiesMsg] = useState<{ type: "error" | "success"; text: string } | null>(
+    null
+  );
+  const [savingSpecialties, setSavingSpecialties] = useState(false);
+
+  useEffect(() => {
+    getCategories().then((res) => setCategories(res.data));
+  }, []);
+
+  const toggleSpecialty = (id: string) => {
+    setSelectedSpecialties((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
+
+  const handleSaveSpecialties = async () => {
+    if (!token) return;
+    setSpecialtiesMsg(null);
+    setSavingSpecialties(true);
+    try {
+      await updateMyProfile({ specialties: selectedSpecialties }, token);
+      setSpecialtiesMsg({ type: "success", text: dict.settings.saved });
+    } catch (err) {
+      setSpecialtiesMsg({ type: "error", text: err instanceof ApiError ? err.message : "حدث خطأ" });
+    } finally {
+      setSavingSpecialties(false);
+    }
+  };
 
   const handlePersonalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,6 +189,47 @@ function SettingsContent() {
             </div>
           )}
         </section>
+
+        {/* تخصصات المدرب */}
+        {user?.role === "instructor" && (
+          <section className="mt-6 rounded-2xl border border-line bg-paper-raised p-6">
+            <h2 className="font-display text-lg font-semibold text-ink">
+              {dict.settings.specialtiesTitle}
+            </h2>
+            <p className="mt-1 text-xs text-ink/50">{dict.settings.specialtiesSubtitle}</p>
+
+            {specialtiesMsg && (
+              <div className="mt-3">
+                <Alert type={specialtiesMsg.type} message={specialtiesMsg.text} />
+              </div>
+            )}
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {categories.map((c) => (
+                <button
+                  key={c._id}
+                  type="button"
+                  onClick={() => toggleSpecialty(c._id)}
+                  className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
+                    selectedSpecialties.includes(c._id)
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-line text-ink/60 hover:border-primary/40"
+                  }`}
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleSaveSpecialties}
+              disabled={savingSpecialties}
+              className="mt-5 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
+            >
+              {savingSpecialties ? dict.checkout.processing : dict.settings.save}
+            </button>
+          </section>
+        )}
 
         {/* البيانات الشخصية */}
         <section className="mt-6 rounded-2xl border border-line bg-paper-raised p-6">

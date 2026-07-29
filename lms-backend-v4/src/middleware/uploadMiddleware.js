@@ -14,13 +14,27 @@ const fileFilter = (allowedTypes) => (req, file, cb) => {
 export const uploadImage = multer({
   storage,
   fileFilter: fileFilter(["image/jpeg", "image/png", "image/webp"]),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 ميجا
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 export const uploadVideo = multer({
   storage,
   fileFilter: fileFilter(["video/mp4", "video/webm", "video/quicktime"]),
-  limits: { fileSize: 500 * 1024 * 1024 }, // 500 ميجا
+  limits: { fileSize: 500 * 1024 * 1024 },
+});
+
+// بتقبل صورة أو فيديو في نفس الحقل، مستخدمة في معرض الكورس
+export const uploadMedia = multer({
+  storage,
+  fileFilter: fileFilter([
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
+  ]),
+  limits: { fileSize: 500 * 1024 * 1024 },
 });
 
 export const uploadDocument = multer({
@@ -31,5 +45,5 @@ export const uploadDocument = multer({
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/zip",
   ]),
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20 ميجا
+  limits: { fileSize: 20 * 1024 * 1024 },
 });

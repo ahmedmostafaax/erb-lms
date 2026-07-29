@@ -10,6 +10,8 @@ const profileSchema = new mongoose.Schema(
     level: { type: String, enum: ["beginner", "intermediate", "advanced"], default: "beginner" },
     totalLearningHours: { type: Number, default: 0 },
     skills: [{ type: mongoose.Schema.Types.ObjectId, ref: "Skill" }],
+    // تخصصات/مجالات المدرب (بتستخدم نفس التصنيفات المستخدمة في الكورسات)
+    specialties: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
     badges: [
       {
         badge: { type: mongoose.Schema.Types.ObjectId, ref: "Badge" },

@@ -30,6 +30,15 @@ const moduleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// عنصر واحد في معرض الكورس (صورة أو فيديو)
+const galleryItemSchema = new mongoose.Schema(
+  {
+    type: { type: String, enum: ["image", "video"], required: true },
+    url: { type: String, required: true },
+  },
+  { timestamps: true }
+);
+
 const courseSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
@@ -39,7 +48,8 @@ const courseSchema = new mongoose.Schema(
     price: { type: Number, required: true, default: 0 },
     level: { type: String, enum: ["beginner", "intermediate", "advanced"], default: "beginner" },
     language: { type: String, default: "ar" },
-    thumbnailUrl: String,
+    thumbnailUrl: String, // الصورة الأساسية (بتتعرض في الكروت وقوائم الاستعراض)
+    gallery: [galleryItemSchema], // معرض صور/فيديوهات إضافية بتتعرض في صفحة تفاصيل الكورس
     status: { type: String, enum: ["draft", "published", "archived"], default: "draft" },
     modules: [moduleSchema],
     ratingAvg: { type: Number, default: 0 },
