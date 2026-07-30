@@ -3,7 +3,7 @@ const router = express.Router();
 
 import validation from "../../middleware/validation.js";
 import { protect, allowedTo } from "../../middleware/auth.js";
-import { uploadImage, uploadMedia } from "../../middleware/uploadMiddleware.js";
+import { uploadThumbnail, uploadMedia } from "../../middleware/uploadMiddleware.js";
 import { createCourseSchema, updateCourseSchema, courseIdSchema } from "./course.validation.js";
 
 import createCourse from "./courseModules/CreateCourse.modules.js";
@@ -21,7 +21,7 @@ router
   .post(
     protect,
     allowedTo("instructor", "admin"),
-    uploadImage.single("thumbnail"),
+    uploadThumbnail.single("thumbnail"),
     validation(createCourseSchema),
     createCourse
   );

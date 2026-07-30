@@ -47,7 +47,7 @@ export default function CoursesPage() {
           setTotalResults(0);
         })
         .finally(() => setLoading(false));
-    }, 350); // debounce بسيط عشان مش نبعت request مع كل حرف وانت بتكتب
+    }, 350);
 
     return () => clearTimeout(timer);
   }, [keyword, categoryId, level, page]);
@@ -62,7 +62,6 @@ export default function CoursesPage() {
         <h1 className="font-display text-2xl font-bold text-ink">{dict.coursesPage.title}</h1>
         <p className="mt-1 text-sm text-ink/60">{dict.coursesPage.subtitle}</p>
 
-        {/* الفلاتر */}
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <input
             type="text"
@@ -71,7 +70,9 @@ export default function CoursesPage() {
               setPage(1);
               setKeyword(e.target.value);
             }}
-            placeholder={dict.coursesPage.searchPlaceholder}
+            placeholder={
+              locale === "ar" ? "ابحث عن كورس أو مدرّس..." : "Search courses or instructors..."
+            }
             className="flex-1 rounded-xl border border-line bg-paper-raised px-4 py-2.5 text-sm text-ink outline-none focus:border-primary"
           />
 
@@ -106,7 +107,6 @@ export default function CoursesPage() {
           </select>
         </div>
 
-        {/* النتائج */}
         <div className="mt-8">
           {loading ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -125,7 +125,6 @@ export default function CoursesPage() {
           )}
         </div>
 
-        {/* الصفحات */}
         {!loading && totalPages > 1 && (
           <div className="mt-10 flex items-center justify-center gap-4">
             <button

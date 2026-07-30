@@ -23,7 +23,6 @@ export const uploadVideo = multer({
   limits: { fileSize: 500 * 1024 * 1024 },
 });
 
-// بتقبل صورة أو فيديو في نفس الحقل، مستخدمة في معرض الكورس
 export const uploadMedia = multer({
   storage,
   fileFilter: fileFilter([
@@ -46,4 +45,22 @@ export const uploadDocument = multer({
     "application/zip",
   ]),
   limits: { fileSize: 20 * 1024 * 1024 },
+});
+
+// Thumbnail: صورة أو فيديو أو ملف
+export const uploadThumbnail = multer({
+  storage,
+  fileFilter: fileFilter([
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/zip",
+  ]),
+  limits: { fileSize: 500 * 1024 * 1024 },
 });

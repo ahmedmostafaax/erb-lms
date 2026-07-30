@@ -1,15 +1,37 @@
 import Course from "../../../../database/models/course.model.js";
+import User from "../../../../database/models/user.model.js";
 import catchError from "../../../middleware/catchError.js";
 import ApiFeature from "../../../utils/ApiFeature.js";
 
 const getCourses = catchError(async (req, res, next) => {
-  const baseQuery = Course.find({ status: "published" })
+  const filter = { status: "published" };
+
+  // لو في كلمة بحث → دور في العنوان/الوصف + أسماء المدرسين
+  if (req.query.keyword) {
+    const keyword = req.query.keyword;
+    const instructors = await User.find({
+      role: { $in: ["instructor", "admin"] },
+      name: { $regex: keyword, $options: "i" },
+    }).select("_id");
+
+    const instructorIds = instructors.map((u) => u._id);
+
+    filter.$or = [
+      { title: { $regex: keyword, $options: "i" } },
+      { description: { $regex: keyword, $options: "i" } },
+      { instructor: { $in: instructorIds } },
+    ];
+
+    // شيل keyword من query عشان ApiFeature.search متعملش فلتر تاني
+    delete req.query.keyword;
+  }
+
+  const baseQuery = Course.find(filter)
     .populate("instructor", "name avatarUrl")
     .populate("category", "name slug");
 
   const apiFeature = new ApiFeature(baseQuery, req.query)
     .filter()
-    .search(["title", "description"])
     .sort()
     .select()
     .paginate();

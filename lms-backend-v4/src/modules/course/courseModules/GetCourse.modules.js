@@ -1,21 +1,47 @@
 import Course from "../../../../database/models/course.model.js";
-import Review from "../../../../database/models/review.model.js";
+import User from "../../../../database/models/user.model.js";
 import catchError from "../../../middleware/catchError.js";
-import AppError from "../../../utils/AppError.js";
+import ApiFeature from "../../../utils/ApiFeature.js";
 
-const getCourse = catchError(async (req, res, next) => {
-  const course = await Course.findById(req.params.id)
-    .populate("instructor", "name avatarUrl profile.bio")
+const getCourses = catchError(async (req, res, next) => {
+  const filter = { status: "published" };
+
+  if (req.query.keyword) {
+    const keyword = req.query.keyword;
+    const instructors = await User.find({
+      role: { $in: ["instructor", "admin"] },
+      name: { $regex: keyword, $options: "i" },
+    }).select("_id");
+
+    const instructorIds = instructors.map((u) => u._id);
+
+    filter.$or = [
+      { title: { $regex: keyword, $options: "i" } },
+      { description: { $regex: keyword, $options: "i" } },
+      { instructor: { $in: instructorIds } },
+    ];
+
+    delete req.query.keyword;
+  }
+
+  const baseQuery = Course.find(filter)
+    .populate("instructor", "name avatarUrl")
     .populate("category", "name slug");
 
-  if (!course) return next(new AppError("الكورس غير موجود", 404));
+  const apiFeature = new ApiFeature(baseQuery, req.query)
+    .filter()
+    .sort()
+    .select()
+    .paginate();
 
-  const reviews = await Review.find({ course: course._id })
-    .populate("user", "name avatarUrl")
-    .sort("-createdAt")
-    .limit(10);
+  const courses = await apiFeature.mongooseQuery.lean();
 
-  res.status(200).json({ status: "success", data: { course, reviews } });
+  res.status(200).json({
+    status: "success",
+    results: courses.length,
+    page: apiFeature.paginationResult.currentPage,
+    data: courses,
+  });
 });
 
-export default getCourse;
+export default getCourses;
