@@ -30,7 +30,6 @@ const moduleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// عنصر واحد في معرض الكورس (صورة أو فيديو)
 const galleryItemSchema = new mongoose.Schema(
   {
     type: { type: String, enum: ["image", "video"], required: true },
@@ -48,9 +47,22 @@ const courseSchema = new mongoose.Schema(
     price: { type: Number, required: true, default: 0 },
     level: { type: String, enum: ["beginner", "intermediate", "advanced"], default: "beginner" },
     language: { type: String, default: "ar" },
-    thumbnailUrl: String, // الصورة الأساسية (بتتعرض في الكروت وقوائم الاستعراض)
-    gallery: [galleryItemSchema], // معرض صور/فيديوهات إضافية بتتعرض في صفحة تفاصيل الكورس
-    status: { type: String, enum: ["draft", "published", "archived"], default: "draft" },
+    thumbnailUrl: String,
+    thumbnailType: { type: String, enum: ["image", "video", "file"], default: "image" },
+    gallery: [galleryItemSchema],
+    scheduledPublishAt: { type: Date, default: null },
+  rejectionReason: { type: String, default: "" },
+  reviewLog: [{
+    action: { type: String, enum: ["approve", "reject", "submit"] },
+    by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    reason: String,
+    at: { type: Date, default: Date.now },
+  }],
+  status: {
+      type: String,
+      enum: ["draft", "pending", "published", "archived", "rejected"],
+      default: "draft",
+    },
     modules: [moduleSchema],
     ratingAvg: { type: Number, default: 0 },
     ratingCount: { type: Number, default: 0 },
@@ -63,7 +75,7 @@ courseSchema.index(
   { title: "text", description: "text" },
   {
     default_language: "none",
-    language_override: "searchLanguage", // اسم حقل مش مستخدم → مش هيتعارض مع language
+    language_override: "searchLanguage",
   }
 );
 courseSchema.index({ category: 1, level: 1, status: 1 });

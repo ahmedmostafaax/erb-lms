@@ -35,7 +35,7 @@ function VerifyEmailForm() {
     try {
       const res = await verifyEmail({ email, otp });
       login(res.token, res.data);
-      router.push("/dashboard");
+      router.push(redirectByRole(res.data?.role));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "حدث خطأ، حاول تاني");
     } finally {
@@ -90,6 +90,12 @@ function VerifyEmailForm() {
       </form>
     </AuthCard>
   );
+}
+
+function redirectByRole(role?: string) {
+  if (role === "instructor") return "/instructor/courses";
+  if (role === "admin") return "/admin/courses";
+  return "/dashboard";
 }
 
 export default function VerifyEmailPage() {

@@ -14,7 +14,18 @@ import profileRouter from "./profile/profile.routes.js";
 import settingsRouter from "./settings/settings.routes.js";
 import uploadRouter from "./upload/upload.routes.js";
 import certificateRouter from "./certificate/certificate.routes.js";
-
+import activityRouter from "./activity/activity.routes.js";
+import instructorFavoriteRouter from "./instructorFavorite/instructorFavorite.routes.js";
+import certificatePdfRouter from "./certificate/certificatePdf.routes.js";
+import adminRouter from "./admin/admin.routes.js";
+import wishlistRouter from "./wishlist/wishlist.routes.js";
+import couponRouter from "./coupon/coupon.routes.js";
+import instructorRouter from "./instructor/instructor.routes.js";
+import learningPathRouter from "./learningPath/learningPath.routes.js";
+import instructorReviewRouter from "./instructorReview/instructorReview.routes.js";
+import liveRouter from "./live/live.routes.js";
+import messageRouter from "./message/message.routes.js";
+import lessonNotesRouter from "./lessonNotes/lessonNotes.routes.js";
 
 const bootstrap = (app) => {
   app.use("/api/auth", userRouter);
@@ -30,11 +41,26 @@ const bootstrap = (app) => {
   app.use("/api/profile", profileRouter);
   app.use("/api/settings", settingsRouter);
   app.use("/api/upload", uploadRouter);
+  app.use("/api/certificates", certificatePdfRouter);
   app.use("/api/certificates", certificateRouter);
+  app.use("/api/activity", activityRouter);
+  app.use("/api/admin", adminRouter);
+  app.use("/api/wishlist", wishlistRouter);
+  app.use("/api/coupons", couponRouter);
+  app.use("/api/instructor", instructorRouter);
+  app.use("/api/paths", learningPathRouter);
+  app.use("/api/instructor-reviews", instructorReviewRouter);
+  app.use("/api/messages", messageRouter);
+  app.use("/api/live", liveRouter);
+
+    app.use("/api/instructor-favorites", instructorFavoriteRouter);
+
+  app.use("/api/lesson-notes", lessonNotesRouter);
 
   app.use((req, res, next) => {
     next(new AppError(`المسار غير موجود: ${req.originalUrl}`, 404));
   });
+
 
   app.use(globalError);
 };

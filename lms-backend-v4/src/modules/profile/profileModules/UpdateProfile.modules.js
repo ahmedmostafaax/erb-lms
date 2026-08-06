@@ -2,7 +2,16 @@ import User from "../../../../database/models/user.model.js";
 import catchError from "../../../middleware/catchError.js";
 
 const updateProfile = catchError(async (req, res, next) => {
-  const allowedFields = ["bio", "cvUrl", "linkedinUrl", "portfolioUrl", "specialties"];
+  const allowedFields = [
+    "bio",
+    "cvUrl",
+    "linkedinUrl",
+    "portfolioUrl",
+    "specialties",
+    "experienceYears",
+    "education",
+    "certifications",
+  ];
   const updateData = {};
 
   allowedFields.forEach((field) => {
@@ -10,6 +19,10 @@ const updateProfile = catchError(async (req, res, next) => {
       updateData[`profile.${field}`] = req.body[field];
     }
   });
+
+  if (req.body.age !== undefined) {
+    updateData.age = Number(req.body.age);
+  }
 
   const user = await User.findByIdAndUpdate(req.user._id, { $set: updateData }, { new: true }).populate(
     "profile.specialties",

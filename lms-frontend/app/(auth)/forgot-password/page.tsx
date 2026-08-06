@@ -11,20 +11,29 @@ import { FormField } from "@/components/auth/FormField";
 import { Alert } from "@/components/Alert";
 
 export default function ForgotPasswordPage() {
-  const { dict } = useLanguage();
+  const { dict, locale } = useLanguage();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
     setLoading(true);
     try {
       await forgotPassword({ email });
-      router.push(`/reset-password?email=${encodeURIComponent(email)}`);
+      setSuccess(
+        locale === "ar"
+          ? "تم إرسال كود إعادة التعيين لبريدك. هتحوّلك لصفحة إدخال الكود."
+          : "Reset code sent. Redirecting..."
+      );
+      setTimeout(() => {
+        router.push(`/reset-password?email=${encodeURIComponent(email)}`);
+      }, 1200);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "حدث خطأ، حاول تاني");
     } finally {
@@ -45,6 +54,7 @@ export default function ForgotPasswordPage() {
     >
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         {error && <Alert type="error" message={error} />}
+        {success && <Alert type="success" message={success} />}
 
         <FormField
           id="email"

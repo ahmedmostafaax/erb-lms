@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { useAuth } from "@/lib/auth/AuthContext";
@@ -10,7 +10,7 @@ import { Navbar } from "@/components/Navbar";
 import { ProgressRing } from "@/components/ProgressRing";
 
 function DashboardContent() {
-  const { dict } = useLanguage();
+  const { dict, locale } = useLanguage();
   const { token, user } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,6 +22,31 @@ function DashboardContent() {
       .finally(() => setLoading(false));
   }, [token]);
 
+  const lastActivity = useMemo(() => {
+    if (!data?.enrollments?.length) return null;
+    return data.enrollments[0];
+  }, [data]);
+
+  const downloadPdf = async (certId: string) => {
+    if (!token) return;
+    const base = process.env.NEXT_PUBLIC_API_URL || "/api";
+    try {
+      const res = await fetch(`${base}/certificates/${certId}/pdf`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("fail");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `certificate-${certId}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert(locale === "ar" ? "تعذر تحميل PDF" : "PDF failed");
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -30,11 +55,31 @@ function DashboardContent() {
           {dict.dashboard.greeting} {user?.name}
         </h1>
         <p className="mt-1 text-sm text-ink/60">{dict.dashboard.subtitle}</p>
+        <Link href="/activity" className="mt-2 inline-block text-sm text-primary hover:underline">
+          {locale === "ar" ? "سجل النشاط" : "Activity"}
+        </Link>
 
-        {loading && <p className="mt-8 text-sm text-ink/50">...</p>}
+        {loading ? <p className="mt-8 text-sm text-ink/50">...</p> : null}
 
-        {data && (
+        {data ? (
           <>
+            {lastActivity ? (
+              <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+                <p className="text-xs font-medium text-primary">
+                  {locale === "ar" ? "آخر نشاط" : "Continue"}
+                </p>
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+                  <p className="font-medium text-ink">{lastActivity.course.title}</p>
+                  <Link
+                    href={`/learn/${lastActivity.course._id}`}
+                    className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    {locale === "ar" ? "متابعة" : "Continue"}
+                  </Link>
+                </div>
+              </div>
+            ) : null}
+
             <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
               {[
                 { label: dict.dashboard.stats.total, value: data.stats.totalCourses },
@@ -63,12 +108,12 @@ function DashboardContent() {
                     <Link
                       key={e._id}
                       href={`/learn/${e.course._id}`}
-                      className="flex items-center gap-4 rounded-2xl border border-line bg-paper-raised p-4 transition-shadow hover:shadow-md"
+                      className="flex items-center gap-4 rounded-2xl border border-line bg-paper-raised p-4 hover:shadow-md"
                     >
                       <ProgressRing percent={e.progressPercent} />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-ink">{e.course.title}</p>
-                        <p className="mt-1 text-xs text-ink/50">{dict.dashboard.stats.inProgress}</p>
+                        <p className="mt-1 text-xs text-ink/50">{e.progressPercent}%</p>
                       </div>
                     </Link>
                   ))}
@@ -83,19 +128,32 @@ function DashboardContent() {
               {data.certificates.length === 0 ? (
                 <p className="mt-4 text-sm text-ink/50">{dict.dashboard.noCertificates}</p>
               ) : (
-                <ul className="mt-4 space-y-2">
+                <ul className="mt-4 space-y-3">
                   {data.certificates.map((c) => (
-                    <li key={c._id}>
-                      <Link href={`/certificates/${c._id}`} className="text-sm text-primary hover:underline">
+                    <li
+                      key={c._id}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line p-3"
+                    >
+                      <Link
+                        href={`/certificates/${c._id}`}
+                        className="text-sm text-primary hover:underline"
+                      >
                         {c.course.title}
                       </Link>
+                      <button
+                        type="button"
+                        onClick={() => downloadPdf(c._id)}
+                        className="rounded-full border border-line px-3 py-1 text-xs hover:border-primary"
+                      >
+                        PDF
+                      </button>
                     </li>
                   ))}
                 </ul>
               )}
             </section>
           </>
-        )}
+        ) : null}
       </main>
     </>
   );

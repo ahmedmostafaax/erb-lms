@@ -9,9 +9,12 @@ const profileSchema = new mongoose.Schema(
     portfolioUrl: String,
     level: { type: String, enum: ["beginner", "intermediate", "advanced"], default: "beginner" },
     totalLearningHours: { type: Number, default: 0 },
+    points: { type: Number, default: 0 },
     skills: [{ type: mongoose.Schema.Types.ObjectId, ref: "Skill" }],
-    // تخصصات/مجالات المدرب (بتستخدم نفس التصنيفات المستخدمة في الكورسات)
     specialties: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
+    experienceYears: { type: Number, default: 0 },
+    education: { type: String, default: "" },
+    certifications: { type: String, default: "" },
     badges: [
       {
         badge: { type: mongoose.Schema.Types.ObjectId, ref: "Badge" },
@@ -36,22 +39,18 @@ const userSchema = new mongoose.Schema(
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, minlength: 6, select: false },
-    role: { type: String, enum: ["student", "instructor", "admin"], default: "student" },
+    isBlocked: { type: Boolean, default: false },
+  role: { type: String, enum: ["student", "instructor", "admin"], default: "student" },
     phone: String,
+    age: Number,
     avatarUrl: String,
     authProvider: { type: String, enum: ["local", "google"], default: "local" },
     googleId: { type: String, default: null },
     profile: { type: profileSchema, default: () => ({}) },
     settings: { type: settingsSchema, default: () => ({}) },
     isEmailVerified: { type: Boolean, default: false },
-    otp: {
-      code: String,
-      expiresAt: Date,
-    },
-    passwordResetCode: {
-      code: String,
-      expiresAt: Date,
-    },
+    otp: { code: String, expiresAt: Date },
+    passwordResetCode: { code: String, expiresAt: Date },
   },
   { timestamps: true }
 );

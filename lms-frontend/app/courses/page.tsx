@@ -21,6 +21,9 @@ export default function CoursesPage() {
   const [categoryId, setCategoryId] = useState("");
   const [level, setLevel] = useState("");
   const [page, setPage] = useState(1);
+const [priceFilter, setPriceFilter] = useState("");
+const [minRating, setMinRating] = useState("");
+const [sort, setSort] = useState("-createdAt");
 
   useEffect(() => {
     getCategories()
@@ -32,12 +35,15 @@ export default function CoursesPage() {
     setLoading(true);
     const timer = setTimeout(() => {
       getCourses({
-        keyword: keyword || undefined,
-        category: categoryId || undefined,
-        level: level || undefined,
-        page,
-        limit: PAGE_SIZE,
-      })
+  keyword: keyword || undefined,
+  category: categoryId || undefined,
+  level: level || undefined,
+  price: priceFilter || undefined,
+  minRating: minRating || undefined,
+  sort: sort || undefined,
+  page,
+  limit: PAGE_SIZE,
+})
         .then((res) => {
           setCourses(res.data);
           setTotalResults(res.results);

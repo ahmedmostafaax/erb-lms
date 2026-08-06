@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { ProtectedRoute } from "@/lib/auth/ProtectedRoute";
-import { Navbar } from "@/components/Navbar";
 import { Alert } from "@/components/Alert";
 import {
   getQuizForGrading,
@@ -112,7 +110,7 @@ function GradingRow({
   );
 }
 
-function SubmissionsContent() {
+export default function SubmissionsPage() {
   const { quizId } = useParams<{ quizId: string }>();
   const { dict } = useLanguage();
   const { token } = useAuth();
@@ -137,42 +135,28 @@ function SubmissionsContent() {
 
   if (loading || !quiz) {
     return (
-      <>
-        <Navbar />
-        <main className="mx-auto max-w-3xl flex-1 px-6 py-16">
-          <div className="h-6 w-1/3 animate-pulse rounded bg-line/40" />
-        </main>
-      </>
+      <main className="mx-auto max-w-3xl flex-1 px-6 py-16">
+        <div className="h-6 w-1/3 animate-pulse rounded bg-line/40" />
+      </main>
     );
   }
 
   return (
-    <>
-      <Navbar />
-      <main className="mx-auto max-w-3xl flex-1 px-6 py-10">
-        <h1 className="font-display text-2xl font-bold text-ink">{quiz.title}</h1>
-        <p className="mt-1 text-sm text-ink/60">
-          {submissions.length} {dict.instructorGrading.submissionsCount}
-        </p>
+    <main className="mx-auto max-w-3xl flex-1 px-6 py-10">
+      <h1 className="font-display text-2xl font-bold text-ink">{quiz.title}</h1>
+      <p className="mt-1 text-sm text-ink/60">
+        {submissions.length} {dict.instructorGrading.submissionsCount}
+      </p>
 
-        <div className="mt-6 space-y-4">
-          {submissions.length === 0 ? (
-            <p className="py-8 text-center text-sm text-ink/50">{dict.instructorGrading.noSubmissions}</p>
-          ) : (
-            submissions.map((s) => (
-              <GradingRow key={s._id} submission={s} quiz={quiz} token={token!} onGraded={handleGraded} />
-            ))
-          )}
-        </div>
-      </main>
-    </>
-  );
-}
-
-export default function SubmissionsPage() {
-  return (
-    <ProtectedRoute>
-      <SubmissionsContent />
-    </ProtectedRoute>
+      <div className="mt-6 space-y-4">
+        {submissions.length === 0 ? (
+          <p className="py-8 text-center text-sm text-ink/50">{dict.instructorGrading.noSubmissions}</p>
+        ) : (
+          submissions.map((s) => (
+            <GradingRow key={s._id} submission={s} quiz={quiz} token={token!} onGraded={handleGraded} />
+          ))
+        )}
+      </div>
+    </main>
   );
 }

@@ -6,7 +6,14 @@ import ApiFeature from "../../../utils/ApiFeature.js";
 const getCourses = catchError(async (req, res, next) => {
   const filter = { status: "published" };
 
-  // لو في كلمة بحث → دور في العنوان/الوصف + أسماء المدرسين
+  if (req.query.price === "free") filter.price = 0;
+  if (req.query.price === "paid") filter.price = { $gt: 0 };
+  if (req.query.minRating) filter.ratingAvg = { $gte: Number(req.query.minRating) };
+
+  // price و minRating مش حقول ApiFeature العادية بنفس الشكل — امسحهم من query
+  delete req.query.price;
+  delete req.query.minRating;
+
   if (req.query.keyword) {
     const keyword = req.query.keyword;
     const instructors = await User.find({
@@ -22,7 +29,6 @@ const getCourses = catchError(async (req, res, next) => {
       { instructor: { $in: instructorIds } },
     ];
 
-    // شيل keyword من query عشان ApiFeature.search متعملش فلتر تاني
     delete req.query.keyword;
   }
 

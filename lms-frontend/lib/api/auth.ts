@@ -17,6 +17,11 @@ export function signUp(payload: {
   email: string;
   password: string;
   role: "student" | "instructor";
+  age?: number;
+  experienceYears?: number;
+  education?: string;
+  certifications?: string;
+  bio?: string;
 }) {
   return apiFetch<MessageResponse>("/auth/signup", { method: "POST", body: payload });
 }

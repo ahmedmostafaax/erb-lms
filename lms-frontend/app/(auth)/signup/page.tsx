@@ -13,15 +13,26 @@ import { PasswordField } from "@/components/auth/PasswordField";
 import { GoogleButton } from "@/components/auth/GoogleButton";
 import { Alert } from "@/components/Alert";
 
+function redirectByRole(role?: string) {
+  if (role === "instructor") return "/instructor/courses";
+  if (role === "admin") return "/admin/courses";
+  return "/dashboard";
+}
+
 export default function SignupPage() {
-  const { dict } = useLanguage();
+  const { dict, locale } = useLanguage();
   const { login } = useAuth();
   const router = useRouter();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [age, setAge] = useState("");
   const [role, setRole] = useState<"student" | "instructor">("student");
+  const [experienceYears, setExperienceYears] = useState("");
+  const [education, setEducation] = useState("");
+  const [certifications, setCertifications] = useState("");
+  const [bio, setBio] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -30,7 +41,20 @@ export default function SignupPage() {
     setError(null);
     setLoading(true);
     try {
-      await signUp({ name, email, password, role });
+      const payload: Parameters<typeof signUp>[0] = {
+        name,
+        email,
+        password,
+        role,
+      };
+      if (age) payload.age = Number(age);
+      if (role === "instructor") {
+        if (experienceYears) payload.experienceYears = Number(experienceYears);
+        if (education) payload.education = education;
+        if (certifications) payload.certifications = certifications;
+        if (bio) payload.bio = bio;
+      }
+      await signUp(payload);
       router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "حدث خطأ، حاول تاني");
@@ -44,7 +68,7 @@ export default function SignupPage() {
     try {
       const res = await googleAuth({ idToken });
       login(res.token, res.data);
-      router.push("/dashboard");
+      router.push(redirectByRole(res.data?.role));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "فشل الدخول بجوجل");
     }
@@ -67,29 +91,17 @@ export default function SignupPage() {
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         {error && <Alert type="error" message={error} />}
 
+        <FormField id="name" label={dict.auth.signup.name} value={name} onChange={setName} autoComplete="name" required />
+        <FormField id="email" label={dict.auth.signup.email} type="email" value={email} onChange={setEmail} autoComplete="email" required />
+        <PasswordField id="password" label={dict.auth.signup.password} value={password} onChange={setPassword} autoComplete="new-password" />
+
         <FormField
-          id="name"
-          label={dict.auth.signup.name}
-          value={name}
-          onChange={setName}
-          autoComplete="name"
+          id="age"
+          label={locale === "ar" ? "العمر" : "Age"}
+          type="number"
+          value={age}
+          onChange={setAge}
           required
-        />
-        <FormField
-          id="email"
-          label={dict.auth.signup.email}
-          type="email"
-          value={email}
-          onChange={setEmail}
-          autoComplete="email"
-          required
-        />
-        <PasswordField
-          id="password"
-          label={dict.auth.signup.password}
-          value={password}
-          onChange={setPassword}
-          autoComplete="new-password"
         />
 
         <div>
@@ -111,6 +123,55 @@ export default function SignupPage() {
             ))}
           </div>
         </div>
+
+        {role === "instructor" && (
+          <div className="space-y-4 rounded-xl border border-line bg-paper p-4">
+            <p className="text-sm font-semibold text-ink">
+              {locale === "ar" ? "بيانات المدرّس" : "Instructor details"}
+            </p>
+            <FormField
+              id="experienceYears"
+              label={locale === "ar" ? "سنوات الخبرة" : "Years of experience"}
+              type="number"
+              value={experienceYears}
+              onChange={setExperienceYears}
+            />
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-ink">
+                {locale === "ar" ? "المؤهلات الأكاديمية" : "Education"}
+              </label>
+              <textarea
+                value={education}
+                onChange={(e) => setEducation(e.target.value)}
+                rows={2}
+                placeholder={locale === "ar" ? "مثال: بكالوريوس هندسة - جامعة القاهرة" : "e.g. BSc Engineering"}
+                className="w-full rounded-xl border border-line bg-paper px-4 py-2.5 text-sm outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-ink">
+                {locale === "ar" ? "الشهادات / الدورات" : "Certifications"}
+              </label>
+              <textarea
+                value={certifications}
+                onChange={(e) => setCertifications(e.target.value)}
+                rows={2}
+                className="w-full rounded-xl border border-line bg-paper px-4 py-2.5 text-sm outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-ink">
+                {locale === "ar" ? "نبذة مختصرة" : "Bio"}
+              </label>
+              <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                rows={3}
+                className="w-full rounded-xl border border-line bg-paper px-4 py-2.5 text-sm outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+        )}
 
         <button
           type="submit"

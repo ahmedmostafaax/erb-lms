@@ -1,5 +1,6 @@
 import { Submission, Quiz } from "../../../../database/models/assessment.model.js";
 import Course from "../../../../database/models/course.model.js";
+import Notification from "../../../../database/models/notification.model.js";
 import catchError from "../../../middleware/catchError.js";
 import AppError from "../../../utils/AppError.js";
 import checkOwnership from "../../../utils/checkOwnership.js";
@@ -14,12 +15,11 @@ const gradeSubmission = catchError(async (req, res, next) => {
     return next(new AppError("مالكش صلاحية تصحح التسليم ده", 403));
   }
 
-  // بعد حساب maxScore
-const maxScore = quiz.questions.reduce((sum, q) => sum + (q.points || 1), 0);
+  const maxScore = quiz.questions.reduce((sum, q) => sum + (q.points || 1), 0);
 
-if (req.body.score > maxScore) {
-  return next(new AppError(`الدرجة لا يمكن أن تتجاوز ${maxScore}`, 400));
-}
+  if (req.body.score > maxScore) {
+    return next(new AppError(`الدرجة لا يمكن أن تتجاوز ${maxScore}`, 400));
+  }
 
   submission.result = {
     score: req.body.score,
@@ -29,6 +29,15 @@ if (req.body.score > maxScore) {
   };
   submission.status = "graded";
   await submission.save();
+
+  try {
+    await Notification.create({
+      user: submission.user,
+      type: "system",
+      message: `تم تصحيح اختبارك: ${quiz.title} — الدرجة ${req.body.score}/${maxScore}`,
+      link: `/quiz/${quiz._id}`,
+    });
+  } catch {}
 
   res.status(200).json({ status: "success", data: submission });
 });

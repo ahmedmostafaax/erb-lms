@@ -11,13 +11,19 @@ import updateProfile from "./profileModules/UpdateProfile.modules.js";
 import getPublicProfile from "./profileModules/GetPublicProfile.modules.js";
 import updateAvatar from "./profileModules/UpdateAvatar.modules.js";
 import updateCv from "./profileModules/UpdateCv.modules.js";
+import getInstructor from "./profileModules/GetInstructor.modules.js";
+import searchInstructors from "./profileModules/SearchInstructors.modules.js";
+import getMyProfile from "./profileModules/GetMyProfile.modules.js";
 
-router.get("/:id", validation(userIdSchema), getPublicProfile); // متاح لأي حد
+router.get("/search-instructors", searchInstructors);
+router.get("/instructors/:id", getInstructor);
 
-router.use(protect);
-router.get("/me/dashboard", getDashboard);
-router.put("/me", validation(updateProfileSchema), updateProfile);
-router.patch("/me/avatar", uploadImage.single("avatar"), updateAvatar);
-router.patch("/me/cv", uploadDocument.single("cv"), updateCv);
+router.get("/me", protect, getMyProfile);
+router.get("/me/dashboard", protect, getDashboard);
+router.put("/me", protect, validation(updateProfileSchema), updateProfile);
+router.patch("/me/avatar", protect, uploadImage.single("avatar"), updateAvatar);
+router.patch("/me/cv", protect, uploadDocument.single("cv"), updateCv);
+
+router.get("/:id", validation(userIdSchema), getPublicProfile);
 
 export default router;

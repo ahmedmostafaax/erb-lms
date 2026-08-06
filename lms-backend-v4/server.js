@@ -9,17 +9,31 @@ const app = express();
 
 connectDB();
 
+app.set("trust proxy", 1);
 app.use(cors());
 app.use(express.json());
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 دقيقة
-  max: 300, // 300 طلب لكل IP كل 15 دقيقة
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: { status: "fail", message: "عدد الطلبات تجاوز الحد المسموح، حاول تاني بعد شوية" },
 });
 app.use("/api", limiter);
 
-app.get("/health", (req, res) => res.json({ status: "ok" }));
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { status: "fail", message: "محاولات كثيرة على تسجيل الدخول، استنى شوية" },
+});
+app.use("/api/auth", authLimiter);
+
+app.get("/health", (req, res) =>
+  res.json({ status: "ok", time: new Date().toISOString() })
+);
 
 bootstrap(app);
 

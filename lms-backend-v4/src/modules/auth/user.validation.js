@@ -5,6 +5,12 @@ export const signUpSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
   role: Joi.string().valid("student", "instructor").optional(),
+  age: Joi.number().integer().min(10).max(100).optional(),
+  // للمدرّس
+  experienceYears: Joi.number().integer().min(0).max(50).optional(),
+  education: Joi.string().max(500).allow("").optional(),
+  certifications: Joi.string().max(500).allow("").optional(),
+  bio: Joi.string().max(1000).allow("").optional(),
 });
 
 export const signInSchema = Joi.object({

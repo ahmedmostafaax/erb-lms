@@ -23,13 +23,17 @@ declare global {
 export function GoogleButton({ onCredential }: { onCredential: (idToken: string) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { locale } = useLanguage();
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const isValidClientId =
+    !!clientId &&
+    clientId !== "your_google_client_id" &&
+    clientId.includes(".apps.googleusercontent.com");
 
   useEffect(() => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    if (!clientId || !window.google || !containerRef.current) return;
+    if (!isValidClientId || !window.google || !containerRef.current) return;
 
     window.google.accounts.id.initialize({
-      client_id: clientId,
+      client_id: clientId!,
       callback: (response) => onCredential(response.credential),
     });
 
@@ -40,7 +44,9 @@ export function GoogleButton({ onCredential }: { onCredential: (idToken: string)
       width: 360,
       locale: locale === "ar" ? "ar" : "en",
     });
-  }, [locale, onCredential]);
+  }, [locale, onCredential, isValidClientId, clientId]);
+
+  if (!isValidClientId) return null;
 
   return (
     <>

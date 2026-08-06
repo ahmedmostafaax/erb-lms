@@ -13,6 +13,12 @@ import { PasswordField } from "@/components/auth/PasswordField";
 import { GoogleButton } from "@/components/auth/GoogleButton";
 import { Alert } from "@/components/Alert";
 
+function redirectByRole(role?: string) {
+  if (role === "instructor") return "/instructor/courses";
+  if (role === "admin") return "/admin/courses";
+  return "/dashboard";
+}
+
 export default function LoginPage() {
   const { dict } = useLanguage();
   const { login } = useAuth();
@@ -30,7 +36,7 @@ export default function LoginPage() {
     try {
       const res = await signIn({ email, password });
       login(res.token, res.data);
-      router.push("/dashboard");
+      router.push(redirectByRole(res.data?.role));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "حدث خطأ، حاول تاني");
     } finally {
@@ -43,7 +49,7 @@ export default function LoginPage() {
     try {
       const res = await googleAuth({ idToken });
       login(res.token, res.data);
-      router.push("/dashboard");
+      router.push(redirectByRole(res.data?.role));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "فشل الدخول بجوجل");
     }

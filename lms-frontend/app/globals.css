@@ -62,3 +62,18 @@ html[data-lang="ar"] body {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
+
+html.dark {
+  --ink: #e8eeeb;
+  --paper: #0f1a17;
+  --paper-raised: #16241f;
+  --line: #2a3d36;
+  --primary: #3d9b82;
+  --primary-dark: #2a6f5c;
+  --accent: #e0b45a;
+  --accent-soft: #3d3420;
+  --danger: #e06a5c;
+  --danger-soft: #3d221f;
+  --success: #5cb88a;
+  --success-soft: #1e3328;
+}

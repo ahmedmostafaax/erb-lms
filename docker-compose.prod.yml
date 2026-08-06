@@ -35,6 +35,9 @@ services:
     build:
       context: ./lms-frontend
       dockerfile: Dockerfile.frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://ec2-63-184-39-37.eu-central-1.compute.amazonaws.com/api
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: 338039635571-7svt7atubg8kgpvnb9aa0qfv3t33uurc.apps.googleusercontent.com
     container_name: lms_frontend
     restart: always
     networks:

@@ -39,3 +39,4 @@ router.put("/modules/:moduleId/lessons/:lessonId", validation(updateLessonSchema
 router.delete("/modules/:moduleId/lessons/:lessonId", validation(lessonParamsSchema), deleteLesson);
 
 export default router;
+// ملاحظة: لو المسارات مكررة احذف القديمة يدويًا

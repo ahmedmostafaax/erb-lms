@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Sans_Arabic, IBM_Plex_Mono } from "next/font/google";
 import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
 import { AuthProvider } from "@/lib/auth/AuthContext";
+import { RegisterSW } from "@/components/RegisterSW";
 import "./globals.css";
 
 const fontEn = IBM_Plex_Sans({
@@ -22,13 +23,52 @@ const fontNum = IBM_Plex_Mono({
   weight: ["400", "500", "600"],
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "http://ec2-63-184-39-37.eu-central-1.compute.amazonaws.com";
+
 export const metadata: Metadata = {
-  title: "منصة الكورسات | Learning Platform",
-  description: "اتعلم مهارة جديدة خطوة بخطوة — Learn a new skill, step by step",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "منصة الكورسات | Learning Platform",
+    template: "%s | منصة الكورسات",
+  },
+  description: "اتعلم مهارة جديدة خطوة بخطوة — كورسات عربية باحتراف",
+  applicationName: "منصة الكورسات",
+  keywords: ["كورسات", "تعليم", "LMS", "برمجة", "تعلم أونلاين"],
+  authors: [{ name: "منصة الكورسات" }],
+  openGraph: {
+    type: "website",
+    locale: "ar_EG",
+    url: siteUrl,
+    siteName: "منصة الكورسات",
+    title: "منصة الكورسات",
+    description: "اتعلم مهارة جديدة خطوة بخطوة",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "منصة الكورسات",
+    description: "اتعلم مهارة جديدة خطوة بخطوة",
+  },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "منصة",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
-// سكريبت بسيط بيقرأ اللغة المحفوظة قبل أول رسم للصفحة، عشان مايحصلش "فلاش"
-// من لغة افتراضية للغة المحفوظة فعليًا
+export const viewport: Viewport = {
+  themeColor: "#1B6B5A",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 const noFlashScript = `
 (function () {
   try {
@@ -55,10 +95,16 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: noFlashScript }} />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="min-h-full flex flex-col bg-paper text-ink" suppressHydrationWarning>
         <LanguageProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <RegisterSW />
+            {children}
+          </AuthProvider>
         </LanguageProvider>
       </body>
     </html>

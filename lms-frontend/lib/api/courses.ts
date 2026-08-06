@@ -12,7 +12,7 @@ export type Course = {
   thumbnailUrl?: string;
   thumbnailType?: "image" | "video" | "file";
   gallery?: { _id: string; type: "image" | "video"; url: string }[];
-  status?: "draft" | "published" | "archived";
+    status?: "draft" | "pending" | "published" | "archived" | "rejected";
   modules?: {
     _id: string;
     title: string;
@@ -45,4 +45,9 @@ export function getCourses(params: Record<string, string | number | undefined> =
 
 export function getCourse(id: string) {
   return apiFetch<CourseDetailsResponse>(`/courses/${id}`);
+}
+
+
+export function getMyCourses(token: string) {
+  return apiFetch<{ status: string; data: Course[] }>("/courses/mine", { token });
 }

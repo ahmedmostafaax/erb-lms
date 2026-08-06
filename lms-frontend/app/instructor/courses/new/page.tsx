@@ -26,19 +26,28 @@ export default function NewCoursePage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    getCategories().then((res) => setCategories(res.data));
+    getCategories().then((res) => setCategories(res.data || [])).catch(() => {});
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
 
+    if (!title.trim()) {
+      setError("اكتب عنوان الكورس");
+      return;
+    }
+    if (!categoryId || categoryId.length !== 24) {
+      setError("اختَر تصنيفًا صحيحًا");
+      return;
+    }
+
     setError(null);
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("title", title);
-      formData.append("description", description);
+      formData.append("title", title.slice(0, 120));
+      formData.append("description", description.slice(0, 2000));
       formData.append("category", categoryId);
       formData.append("price", price);
       formData.append("level", level);
@@ -47,7 +56,13 @@ export default function NewCoursePage() {
       }
 
       const res = await createCourse(formData, token);
-      router.push(`/instructor/courses/${res.data._id}/manage`);
+      const newId = res?.data?._id || (res as { _id?: string })._id;
+      if (!newId || String(newId).length !== 24) {
+        setError("تم الإنشاء لكن لم يُرجع المعرف — افتح قائمة كورساتي");
+        router.push("/instructor/courses");
+        return;
+      }
+      router.push(`/instructor/courses/${newId}/manage`);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "حدث خطأ، حاول تاني");
     } finally {
@@ -57,12 +72,23 @@ export default function NewCoursePage() {
 
   return (
     <main className="mx-auto max-w-xl flex-1 px-6 py-10">
-      <h1 className="font-display text-2xl font-bold text-ink">{dict.instructor.newCourseTitle}</h1>
+      <h1 className="font-display text-2xl font-bold text-ink">
+        {dict.instructor.newCourseTitle}
+      </h1>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        {error && <Alert type="error" message={error} />}
+        {error ? <Alert type="error" message={error} /> : null}
 
-        <FormField id="title" label={dict.instructor.courseTitle} value={title} onChange={setTitle} required />
+        <div>
+          <FormField
+            id="title"
+            label={dict.instructor.courseTitle}
+            value={title}
+            onChange={(v) => setTitle(v.slice(0, 120))}
+            required
+          />
+          <p className="mt-1 text-xs text-ink/50">{title.length}/120</p>
+        </div>
 
         <div>
           <label className="mb-1.5 block text-sm font-medium text-ink">
@@ -70,11 +96,12 @@ export default function NewCoursePage() {
           </label>
           <textarea
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
             rows={4}
             required
-            className="w-full rounded-xl border border-line bg-paper px-4 py-2.5 text-sm text-ink outline-none focus:border-primary"
+            className="w-full rounded-xl border border-line bg-paper px-4 py-2.5 text-sm outline-none focus:border-primary"
           />
+          <p className="mt-1 text-xs text-ink/50">{description.length}/2000</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -86,9 +113,9 @@ export default function NewCoursePage() {
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
               required
-              className="w-full rounded-xl border border-line bg-paper px-4 py-2.5 text-sm text-ink outline-none focus:border-primary"
+              className="w-full rounded-xl border border-line bg-paper px-4 py-2.5 text-sm outline-none focus:border-primary"
             >
-              <option value="">—</option>
+              <option value="">— اختر تصنيف —</option>
               {categories.map((c) => (
                 <option key={c._id} value={c._id}>
                   {c.name}
@@ -98,11 +125,13 @@ export default function NewCoursePage() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-ink">{dict.instructor.level}</label>
+            <label className="mb-1.5 block text-sm font-medium text-ink">
+              {dict.instructor.level}
+            </label>
             <select
               value={level}
               onChange={(e) => setLevel(e.target.value)}
-              className="w-full rounded-xl border border-line bg-paper px-4 py-2.5 text-sm text-ink outline-none focus:border-primary"
+              className="w-full rounded-xl border border-line bg-paper px-4 py-2.5 text-sm outline-none focus:border-primary"
             >
               <option value="beginner">{dict.instructor.beginner}</option>
               <option value="intermediate">{dict.instructor.intermediate}</option>
@@ -124,19 +153,13 @@ export default function NewCoursePage() {
           <label className="mb-1.5 block text-sm font-medium text-ink">
             {dict.instructor.thumbnail}
           </label>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*,video/*,.pdf,.doc,.docx,.zip"
-            className="text-sm"
-          />
-          <p className="mt-1 text-xs text-ink/50">صورة أو فيديو أو ملف (PDF / Word / ZIP)</p>
+          <input ref={fileRef} type="file" accept="image/*,video/*,.pdf" className="text-sm" />
         </div>
 
         <button
           type="submit"
-          disabled={loading}
-          className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-60"
+          disabled={loading || !categoryId}
+          className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-white disabled:opacity-60"
         >
           {loading ? dict.checkout.processing : dict.instructor.createCourse}
         </button>
